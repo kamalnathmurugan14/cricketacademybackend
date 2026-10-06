@@ -260,6 +260,16 @@ PowerShell helper scripts are in `backend/`:
 ```
 Run unit tests with `mvn test`.
 
+## Run in GitHub Codespaces
+
+The repo includes a dev container (`.devcontainer/`) that starts a Java 21 workspace and a MariaDB database, then launches the API automatically.
+
+1. On GitHub, choose **Code → Codespaces → Create codespace on main**.
+2. Wait for the container to build. The API starts on its own and logs to `/tmp/api.log` (`tail -f /tmp/api.log`).
+3. Open the **Ports** tab and open port **8080**. Append `/api/auth/health` to the URL to check it.
+
+The database password and the mail, Infobip and Cashfree values in `.devcontainer/docker-compose.yml` are local placeholders. Emails, SMS and payments need real credentials. To restart the API: `bash .devcontainer/start.sh`. Port 5173 is forwarded for a frontend, but this repository doesn't contain one.
+
 ## 11. Troubleshooting
 
 - **Startup fails on a missing `spring.mail.*`, `cashfree.*` or `infobip.*` value**: set them (see 5.3).
