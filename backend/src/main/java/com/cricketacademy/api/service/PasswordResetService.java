@@ -1,7 +1,7 @@
 package com.cricketacademy.api.service;
 
 import com.cricketacademy.api.dto.PasswordResetResponse;
-import com.cricketacademy.api.model.User;
+import com.cricketacademy.api.entity.User;
 import com.cricketacademy.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

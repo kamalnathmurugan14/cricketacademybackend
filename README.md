@@ -114,12 +114,21 @@ The API is served at **`http://localhost:8080/api`**. Quick check:
 curl http://localhost:8080/api/auth/health
 ```
 
+`application.yml` has no mail, Cashfree or Infobip settings (the code reads `spring.mail.*`, `cashfree.*` and `infobip.*`), so the app won't start without them. Supply them in the config or as environment variables. For a local run with placeholder values:
+```bash
+export SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT=2525 SPRING_MAIL_USERNAME=dummy SPRING_MAIL_PASSWORD=dummy \
+       INFOBIP_API_KEY=dummy INFOBIP_BASE_URL=https://api.infobip.com \
+       CASHFREE_APPID=dummy CASHFREE_SECRETKEY=dummy CASHFREE_ENV=sandbox
+mvn spring-boot:run
+```
+Emails, SMS and payments only work with real credentials.
+
 ### 5.4 Frontend
 The `project/` folder is empty here. When you add the SPA, run it on port 5173 (or 5174 / 3000) so CORS allows it, and point its API base URL to `http://localhost:8080/api`.
 
 ## 6. Authentication and roles
 
-- Login returns a JWT. Send it as `Authorization: Bearer <token>`.
+- `JwtUtil` and `SimpleJwtFilter` implement JWT validation (`Authorization: Bearer <token>`), **but `/auth/login` currently returns a placeholder token** (`dummy-token-<timestamp>`, with the real JWT call commented out for debugging in `AuthController`/`UserService`). Calls that need a real token (such as `/users/profile` and the admin routes) won't work until login issues a signed JWT. Generated tokens also carry no role claim, so `/admin/**` can't pass as `ADMIN` yet.
 - Roles (`User.UserRole`): `STUDENT` (default), `COACH`, `ADMIN`.
 - Experience levels: `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `PROFESSIONAL`.
 - Password rules: minimum 8 characters, with upper-case, lower-case, digit and special character checks (`PasswordValidationService`).
@@ -216,7 +225,7 @@ Each supports `GET` (list), `POST` (create), `PUT /{id}` (update), `DELETE /{id}
 ### 7.8 Email, test and debug endpoints
 `/api/email/*`, `/api/test/*`, `/api/email-test-alt/*`, `/api/temp-password-reset/*`, `/api/test/user-activity/*` and `/api/debug/*` exist for development and diagnostics. **Disable or remove them in production.**
 
-> **Path note.** `server.servlet.context-path` is `/api`, and several controllers also declare `/api/...` in their own mapping (admin, coaching, enrollments, payment, password-reset, email, debug). Spring concatenates the two, so those routes can resolve to `/api/api/...`. In addition, the security matchers (`/admin/**`, `/payment/**`, `/enrollments/**`) don't include the doubled prefix. Confirm the effective paths by calling them (`/api/...` and `/api/api/...`) and align the mappings, or the context path, with what the frontend calls.
+> **Path note (verified by running the app).** `server.servlet.context-path` is `/api`, and several controllers also declare `/api/...` in their own mapping (admin, coaching, enrollments, payment, password-reset, email, debug). Spring concatenates the two, so those routes are served at `/api/api/...`. For example, programs are at `http://localhost:8080/api/api/coaching/programs`, while `/api/coaching/programs` returns an error. The security matchers (`/admin/**`, `/payment/**`, `/enrollments/**`) don't include the doubled prefix, so they don't match these routes. Align the mappings or the context path with what the frontend calls.
 
 ## 8. Data model
 
@@ -253,7 +262,7 @@ Run unit tests with `mvn test`.
 
 ## 11. Troubleshooting
 
-- **Build errors on `jakarta.mail`, `okhttp3` or `org.springframework.mail`**: the committed `backend/pom.xml` doesn't list `spring-boot-starter-mail` or `okhttp`. Add them if your build can't resolve those imports.
+- **Startup fails on a missing `spring.mail.*`, `cashfree.*` or `infobip.*` value**: set them (see 5.3).
 - **Emails not sent**: use a Gmail App Password (not your account password). See `backend/GMAIL_SETUP_GUIDE.md`.
 - **MySQL connection refused or access denied**: check the URL, credentials and that the `cricket_academy` database exists.
 - **CORS errors**: run the frontend on an allowed origin or add yours in `SimpleSecurityConfig.corsConfigurationSource()`.

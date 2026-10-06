@@ -1,6 +1,6 @@
 package com.cricketacademy.api.dto;
 
-import com.cricketacademy.api.model.User;
+import com.cricketacademy.api.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
