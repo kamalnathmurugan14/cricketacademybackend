@@ -40,6 +40,20 @@ public class UserActivity {
     @Column(name = "user_agent")
     private String userAgent;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_type")
+    private ActivityType activityType;
+
+    @Column(name = "session_id")
+    private String sessionId;
+
+    @Column(name = "additional_info", columnDefinition = "TEXT")
+    private String additionalInfo;
+
+    public enum ActivityType {
+        LOGIN, LOGOUT, LOGIN_FAILED, PASSWORD_CHANGED
+    }
+
     // Constructor for creating new login session
     public UserActivity(User user, LocalDateTime loginTime, String ipAddress, String userAgent) {
         this.user = user;

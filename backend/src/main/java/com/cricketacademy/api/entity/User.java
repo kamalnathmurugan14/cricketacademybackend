@@ -72,6 +72,18 @@ private ExperienceLevel experienceLevel;
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailVerified = false;
+
+    @Column(name = "phone_verified", nullable = false)
+    private Boolean phoneVerified = false;
+
+    @Column(name = "email_verification_pending")
+    private String emailVerificationPending;
+
+    @Column(name = "phone_verification_pending")
+    private String phoneVerificationPending;
+
     // Experience Level Enum
     public enum ExperienceLevel {
         BEGINNER,

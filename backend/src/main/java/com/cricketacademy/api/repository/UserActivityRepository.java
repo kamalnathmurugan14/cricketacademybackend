@@ -66,4 +66,14 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
      */
     @Query("SELECT ua FROM UserActivity ua WHERE ua.loginTime >= :since ORDER BY ua.loginTime DESC")
     List<UserActivity> findRecentSessions(@Param("since") LocalDateTime since);
-} 
+
+    List<UserActivity> findByActivityTypeOrderByLoginTimeDesc(UserActivity.ActivityType activityType);
+
+    default List<UserActivity> findAllLoginActivities() {
+        return findByActivityTypeOrderByLoginTimeDesc(UserActivity.ActivityType.LOGIN);
+    }
+
+    default List<UserActivity> findAllLogoutActivities() {
+        return findByActivityTypeOrderByLoginTimeDesc(UserActivity.ActivityType.LOGOUT);
+    }
+}

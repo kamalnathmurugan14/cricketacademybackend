@@ -1,6 +1,6 @@
 package com.cricketacademy.api.util;
 
-import com.cricketacademy.api.model.User;
+import com.cricketacademy.api.entity.User;
 import com.cricketacademy.api.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

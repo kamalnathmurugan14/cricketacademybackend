@@ -195,6 +195,16 @@ public class UserService {
     }
 
     /**
+     * Reset a user's password (used by the password reset utilities).
+     */
+    public void resetUserPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    /**
      * Find user by email
      * @param email user's email address
      * @return Optional containing user if found

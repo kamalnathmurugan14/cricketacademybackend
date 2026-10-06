@@ -2,6 +2,7 @@ package com.cricketacademy.api.service;
 
 import com.cricketacademy.api.entity.UserActivity;
 import com.cricketacademy.api.repository.UserActivityRepository;
+import com.cricketacademy.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 public class UserActivityService {
 
     private final UserActivityRepository userActivityRepository;
+    private final UserRepository userRepository;
 
     /**
      * Log user login activity with enhanced error handling and retry logic
@@ -73,7 +75,8 @@ public class UserActivityService {
                 userAgent = "unknown";
 
             UserActivity activity = new UserActivity();
-            activity.setUserId(userId);
+            activity.setUser(userRepository.getReferenceById(userId));
+            activity.setLoginTime(java.time.LocalDateTime.now());
             activity.setActivityType(activityType);
             activity.setIpAddress(ipAddress);
             activity.setUserAgent(userAgent);
@@ -91,7 +94,8 @@ public class UserActivityService {
             // Attempt to log the error as a last resort
             try {
                 UserActivity errorActivity = new UserActivity();
-                errorActivity.setUserId(userId);
+                errorActivity.setUser(userRepository.getReferenceById(userId));
+                errorActivity.setLoginTime(java.time.LocalDateTime.now());
                 errorActivity.setActivityType(UserActivity.ActivityType.LOGIN_FAILED);
                 errorActivity.setAdditionalInfo("Error logging activity: " + e.getMessage());
                 userActivityRepository.save(errorActivity);
@@ -135,14 +139,14 @@ public class UserActivityService {
      * Get all activities for a specific user
      */
     public List<UserActivity> getUserActivities(Long userId) {
-        return userActivityRepository.findByUserIdOrderByTimestampDesc(userId);
+        return userActivityRepository.findByUserId(userId);
     }
 
     /**
      * Get recent activities for a user
      */
     public List<UserActivity> getRecentUserActivities(Long userId, int limit) {
-        return userActivityRepository.findByUserIdOrderByTimestampDesc(userId)
+        return userActivityRepository.findByUserId(userId)
                 .stream()
                 .limit(limit)
                 .toList();
